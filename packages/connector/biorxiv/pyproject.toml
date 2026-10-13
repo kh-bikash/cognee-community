@@ -1,0 +1,42 @@
+[project]
+name = "cognee-community-connector-biorxiv"
+version = "0.1.0"
+description = "bioRxiv / medRxiv data-source connector for cognee: sync preprints into memory (incremental + forget-on-delete)"
+readme = "README.md"
+requires-python = ">=3.11,<=3.13"
+dependencies = [
+    # 1.6.x: document-mode rows carry their own node sets (NODE_SET_COLUMN,
+    # DOCUMENT_SYNC_VERSION 2), which this connector uses to group preprints by
+    # category, server and publication state. 1.6 also forgets the final row of
+    # a table emptied by tombstones, which 1.4 skipped.
+    "cognee==1.6.3",
+    "dlt[sqlalchemy]>=1.9.0,<2",
+    "requests>=2.31.0,<3",
+]
+
+[project.urls]
+Homepage = "https://github.com/topoteretes/cognee"
+Repository = "https://github.com/topoteretes/cognee-community"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cognee_community_connector_biorxiv"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "B", "UP", "C4", "PGH", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+# RUF001 flags Greek letters and symbols that look like Latin characters. This
+# connector decodes the servers' {name} placeholders into exactly the character
+# each one names, so those characters sitting next to their lookalikes is the
+# whole point of the table and of the tests that cover it.
+"cognee_community_connector_biorxiv/biorxiv.py" = ["RUF001"]
+"tests/test_biorxiv.py" = ["RUF001", "RUF002"]
